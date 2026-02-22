@@ -1,0 +1,16 @@
+FROM node:20
+
+WORKDIR /app
+
+ARG SERVICE_NAME
+
+COPY services/${SERVICE_NAME}/package.json ./
+COPY services/${SERVICE_NAME}/tsconfig.json ./
+
+# Copy shared package
+COPY --from=monitorapp-shared /shared.tgz ./shared.tgz
+
+RUN npm install ./shared.tgz
+RUN npm install
+
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,29 @@
+{
+  "name": "monitor-service",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "build": "tsc -b",
+    "start:prod": "NODE_ENV=production node dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@monitorapp/shared": "1.0.0",
+    "bullmq": "^5.70.0",
+    "express": "^5.2.1",
+    "ioredis": "^5.9.3",
+    "mongoose": "^9.2.1",
+    "validator": "^13.15.26"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.3",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

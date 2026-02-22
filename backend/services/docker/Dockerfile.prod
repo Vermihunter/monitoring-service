@@ -1,0 +1,29 @@
+# ---------- BUILD ----------
+FROM node:20 AS service-builder
+
+WORKDIR /app
+
+ARG SERVICE_NAME
+
+COPY services/${SERVICE_NAME}/package.json ./
+COPY services/${SERVICE_NAME}/tsconfig.json ./
+COPY services/${SERVICE_NAME}/src ./src
+
+# 👇 THIS is the key difference
+COPY --from=monitorapp-shared /shared.tgz ./shared.tgz
+
+RUN npm install ./shared.tgz
+RUN npm install
+RUN npm run build
+
+
+# ---------- RUNTIME ----------
+FROM node:20 AS runtime
+
+WORKDIR /app
+
+COPY --from=service-builder /app/package.json ./
+COPY --from=service-builder /app/node_modules ./node_modules
+COPY --from=service-builder /app/dist ./dist
+
+CMD ["npm", "run", "start:prod"]

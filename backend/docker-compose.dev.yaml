@@ -1,0 +1,139 @@
+version: "3.8"
+
+services:
+  mongodb:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: monitor-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./.env
+      - ./db/.env
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # bullmq:
+  #   build: .
+  #   container_name: bullmq-app
+  #   depends_on:
+  #     - redis
+  #   env_file:
+  #     - ./.env
+  #     - ./broker/.env
+  #   volumes:
+  #     - .:/app
+  #   command: npm run dev
+
+  shared:
+    image: monitorapp-shared
+    build:
+      context: .
+      dockerfile: services/shared/Dockerfile
+
+    profiles: ["build"]
+
+  badge-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev #services/badge-service/Dockerfile.dev
+      args:
+        SERVICE_NAME: badge-service
+    volumes:
+      - ./services/badge-service:/app
+      - /app/node_modules
+
+  project-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: project-service
+    env_file:
+      - ./.env
+    volumes:
+      - ./services/project-service:/app
+      - /app/node_modules
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: auth-service
+    env_file:
+      - ./services/auth-service/.env
+      - ./.env
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+
+  user-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: user-service
+    env_file:
+      - ./.env
+    volumes:
+      - ./services/user-service:/app
+      - /app/node_modules
+
+  monitor-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: monitor-service
+    env_file:
+      - ./.env
+    volumes:
+      - ./services/monitor-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+
+  monitoring-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: monitoring-service
+    env_file:
+      - ./.env
+    volumes:
+      - ./services/monitoring-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+      - redis
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - monitor-service
+      - badge-service
+      - project-service
+
+volumes:
+  mongo_data:
+  redis_data:
