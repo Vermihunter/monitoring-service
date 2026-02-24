@@ -1,14 +1,16 @@
 import express from "express";
 import authRoutes from "./Routes/auth.routes";
-import { globalErrorHandler } from "@monitorapp/shared";
+import {
+  addHealthCheck,
+  globalErrorHandler,
+  addDefaultMiddlewares,
+  logger,
+} from "@monitorapp/shared";
 
 const app = express();
 
-app.use(express.json({ limit: "10kb" }));
-
-app.get("/healthz", (_, res) => {
-  res.json({ ok: true });
-});
+addDefaultMiddlewares(app, logger);
+addHealthCheck(app);
 
 app.use("/", authRoutes);
 

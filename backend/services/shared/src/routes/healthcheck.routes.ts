@@ -1,7 +1,7 @@
 import { Application } from "express";
 
-export const addHealthCheck = (app: Application) => {
+export default function addHealthCheck(app: Application) {
   app.get("/healthz", (_, res) => {
     res.json({ ok: true });
   });
-};
+}

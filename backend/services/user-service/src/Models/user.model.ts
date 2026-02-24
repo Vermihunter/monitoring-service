@@ -1,4 +1,4 @@
-import {
+import mongoose, {
   Schema,
   model,
   HydratedDocument,
@@ -6,11 +6,8 @@ import {
   CallbackWithoutResultAndOptionalError,
 } from "mongoose";
 
-import validator from "validator";
-
 export interface IUser {
   name: string;
-  email: string;
   photo: string;
   active: boolean;
 }
@@ -22,13 +19,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: [true, "Please tell us your name!"],
   },
-  email: {
-    type: String,
-    required: [true, "Please provide your email"],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, "Please provide a valid email"],
-  },
+
   photo: {
     type: String,
     default: "default.jpg",
@@ -40,12 +31,9 @@ const userSchema = new Schema<IUser>({
   },
 });
 
-userSchema.pre(/^find/, function (
-  this: Query<any, UserDocument>,
-  next: CallbackWithoutResultAndOptionalError,
-) {
+userSchema.pre(/^find/, function (this: Query<any, UserDocument>) {
+  console.log(`INSTANCE: ${this instanceof mongoose.Query}`);
   this.find({ active: { $ne: false } });
-  next();
 } as any); // Casting to 'any' here solves the "No overload matches" issue
 
 export const User = model<IUser>("User", userSchema);

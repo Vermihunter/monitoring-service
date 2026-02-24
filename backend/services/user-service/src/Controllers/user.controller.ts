@@ -142,6 +142,24 @@ export const deleteMe = catchAsync(
   },
 );
 
+export const userExists = catchAsync(
+  async (req: any, res: Response, next: NextFunction) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({
+        status: "fail",
+        message: "No active user with such ID exists",
+      });
+    } else {
+      console.log(`Finding userExists → ${user}`);
+      res.status(200).json({
+        status: "success",
+        user: user,
+      });
+    }
+  },
+);
+
 export const createUser = factory.createOne(User);
 
 // catchAsync(async (req: Request, res: Response) => {

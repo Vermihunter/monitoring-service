@@ -29,11 +29,11 @@ const protect = catchAsync(
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
     }
 
-    // else if (req.cookies.jwt) {
-    //   token = req.cookies.jwt;
-    // }
+    console.log(`Token: ${token}`);
 
     if (!token) {
       return next(
@@ -52,8 +52,11 @@ const protect = catchAsync(
 
     // 3) Check if user still exists
     //const currentUser = await User.findById(decoded.id);
-    const currentUser = await userHttpClient.get<any>(`/${decoded.id}`);
-    if (!currentUser) {
+    const userResponse = await userHttpClient.get<any>(
+      `/${decoded.id}/user-exists`,
+    );
+    console.log(`User response: ${JSON.stringify(userResponse)}`);
+    if (!userResponse || userResponse["status"] === "fail") {
       return next(
         new AppError(
           "The user belonging to this token does no longer exist.",
@@ -62,21 +65,21 @@ const protect = catchAsync(
       );
     }
 
-    const currentAuthDetails = await authHttpClient.get<any>(`/${decoded.id}`);
-    // 4) Check if user changed password after the token was issued
-    if (
-      !currentAuthDetails ||
-      currentAuthDetails.changedPasswordAfter(decoded.iat)
-    ) {
-      return next(
-        new AppError(
-          "User recently changed password! Please log in again.",
-          401,
-        ),
-      );
-    }
+    // const currentAuthDetails = await authHttpClient.get<any>(`/${decoded.id}`);
+    // // 4) Check if user changed password after the token was issued
+    // if (
+    //   !currentAuthDetails ||
+    //   currentAuthDetails.changedPasswordAfter(decoded.iat)
+    // ) {
+    //   return next(
+    //     new AppError(
+    //       "User recently changed password! Please log in again.",
+    //       401,
+    //     ),
+    //   );
+    // }
 
-    const user = { ...currentUser };
+    const user = userResponse["user"];
 
     // GRANT ACCESS TO PROTECTED ROUTE
     (req as AuthenticatedRequest).user = user;

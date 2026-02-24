@@ -1,12 +1,17 @@
 import express from "express";
 import badgeRoutes from "./Routes/badge.routes";
-import { routes, globalErrorHandler } from "@monitorapp/shared";
+import {
+  addHealthCheck,
+  addDefaultMiddlewares,
+  globalErrorHandler,
+  logger,
+} from "@monitorapp/shared";
 
 const app = express();
 
-app.use(express.json({ limit: "10kb" }));
+addDefaultMiddlewares(app, logger);
+addHealthCheck(app);
 
-routes.addHealthCheck(app);
 app.use("/", badgeRoutes);
 app.use(globalErrorHandler);
 

@@ -45,20 +45,8 @@ const createSendToken = (
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    let user: any;
-    try {
-      user = await userHttpClient.post("/", {
-        name: req.body.name,
-        email: req.body.email,
-      });
-    } catch (err) {
-      return next(
-        new AppError("Error with user creation - user already exists", 201),
-      );
-    }
-
     const userAuth = await UserAuth.create({
-      _id: user.id,
+      email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
     });
@@ -67,8 +55,16 @@ export const signup = catchAsync(
       console.error();
       return next(new AppError("Problem with creating users", 400));
     }
-
-    createSendToken(user, 201, req, res);
+    let user: any;
+    try {
+      user = await userHttpClient.post("/", {
+        _id: userAuth.id,
+        name: req.body.name,
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 201));
+    }
+    createSendToken(userAuth, 201, req, res);
   },
 );
 
@@ -80,22 +76,27 @@ export const login = catchAsync(
     if (!email || !password) {
       return next(new AppError("Please provide email and password!", 400));
     }
-    // 2) Check if user exists && password is correct
-    const user = await userHttpClient.get<any>(`?email=${email}`);
-    if (!user) {
-      return next(new AppError("Incorrect email or password", 401));
-    }
 
-    const userAuth = await UserAuth.findById(user.id);
+    const userAuth = await UserAuth.findOne({
+      email: email,
+    }).select("+password");
+
+    if (userAuth) {
+      console.log(
+        `Password: ${password} + userAuth.password: ${userAuth.password}`,
+      );
+    }
     if (
       !userAuth ||
-      !(await user.correctPassword(password, userAuth.password))
+      !(await userAuth.correctPassword(password, userAuth.password))
     ) {
       return next(new AppError("Incorrect email or password", 401));
     }
 
+    (userAuth as any).password = undefined;
+
     // 3) If everything ok, send token to client
-    createSendToken(user, 200, req, res);
+    createSendToken(userAuth, 200, req, res);
   },
 );
 

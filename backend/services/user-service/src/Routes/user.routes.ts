@@ -5,6 +5,7 @@ import { protect, restrictTo } from "@monitorapp/shared";
 const router = Router();
 
 router.route("/").post(userController.createUser);
+router.route("/:id/user-exists").get(userController.userExists);
 
 // Protect all routes after this middleware
 router.use(protect);

@@ -3,9 +3,11 @@ import bcrypt from "bcrypt";
 import mongoose, { Schema, HydratedDocument } from "mongoose";
 import { UserRole } from "./user.roles";
 import { AppError } from "@monitorapp/shared";
+import validator from "validator";
 
 export interface IUserAuth {
   role: string;
+  email: string;
   password: string;
   passwordConfirm: string;
   passwordChangedAt: Date;
@@ -13,14 +15,36 @@ export interface IUserAuth {
   passwordResetExpires: Date;
 }
 
+export interface IUserAuthMethods {
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string,
+  ): Promise<boolean>;
+
+  changedPasswordAfter(JWTTimestamp: number): boolean;
+
+  createPasswordResetToken(): string;
+}
+
 export type UserAuthDocument = HydratedDocument<IUserAuth>;
 
-const userAuthSchema = new Schema<IUserAuth>({
+const userAuthSchema = new Schema<
+  IUserAuth,
+  mongoose.Model<IUserAuth, {}, IUserAuthMethods>,
+  IUserAuthMethods
+>({
   role: {
     type: String,
     enum: Object.values(UserRole),
     default: UserRole.USER,
     required: [true, "A user must have a role"],
+  },
+  email: {
+    type: String,
+    required: [true, "Please provide your email"],
+    unique: true,
+    lowercase: true,
+    validate: [validator.isEmail, "Please provide a valid email"],
   },
   password: {
     type: String,
@@ -92,7 +116,7 @@ userAuthSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
 
   return resetToken;
 };

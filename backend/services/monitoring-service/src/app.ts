@@ -1,12 +1,16 @@
 import express from "express";
 import monitoringRoutes from "./Routes/monitoring.routes";
-import { routes, globalErrorHandler } from "@monitorapp/shared";
+import {
+  addHealthCheck,
+  addDefaultMiddlewares,
+  globalErrorHandler,
+  logger,
+} from "@monitorapp/shared";
 
 const app = express();
 
-app.use(express.json({ limit: "10kb" }));
-
-routes.addHealthCheck(app);
+addDefaultMiddlewares(app, logger);
+addHealthCheck(app);
 app.use("/", monitoringRoutes);
 app.use(globalErrorHandler);
 

@@ -8,7 +8,7 @@ docker compose -f docker-compose.dev.yaml build
 docker compose -f docker-compose.dev.yaml up
 ```
 
-## Initialize a new Microservice
+## Initialize a new Microservice
 
 **init + dependency install**
 

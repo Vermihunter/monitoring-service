@@ -1,9 +1,10 @@
-import { Schema, model, HydratedDocument } from "mongoose";
+import { Schema, model, HydratedDocument, Types } from "mongoose";
 
 export interface IProject {
   label: string;
   description: string;
   tags: [string];
+  user: Types.ObjectId;
 }
 
 export type UserDocument = HydratedDocument<IProject>;
@@ -23,6 +24,12 @@ const projectSchema = new Schema<IProject>({
   tags: {
     type: [String],
     default: [],
+  },
+
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
 });
 

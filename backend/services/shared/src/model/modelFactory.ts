@@ -5,6 +5,7 @@ import catchAsync from "../middleware/catchAsync";
 import AppError from "../error/error";
 import APIFeatures from "../query/apiFeatures";
 import { HttpClient } from "../http/httpClient";
+import { FindOneOptions } from "../types/model.types";
 
 /**
  * DELETE ONE
@@ -50,6 +51,8 @@ export const updateOne = <T>(Model: Model<T>) =>
  */
 export const createOne = <T>(Model: Model<T>) =>
   catchAsync(async (req: Request, res: Response) => {
+    console.log("Creating with");
+    console.log(req.body);
     const doc = await Model.create(req.body);
 
     res.status(201).json({
@@ -170,5 +173,54 @@ export const getAll = <T>(Model: Model<T>) =>
       status: "success",
       results: docs.length,
       data: { data: docs },
+    });
+  });
+
+/**
+ *
+ * @param Model
+ * @param param1
+ * @returns
+ */
+export const findOne = <T>(
+  Model: Model<T>,
+  {
+    // filter can be an object: { status: 'active' }
+    // or a function: (req) => ({ _id: req.params.id, owner: req.user.id })
+    filter = (req: Request) => ({ _id: req.params.id }),
+    populate = null,
+    asMiddleware = false,
+    localKey = "doc",
+  }: FindOneOptions = {},
+) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Resolve the filter
+    const queryFilter = typeof filter === "function" ? filter(req) : filter;
+
+    // 2. Execute Query
+    let query = Model.findOne(queryFilter);
+    if (populate) query = query.populate(populate);
+
+    const doc = await query;
+
+    // 3. Handle Missing Document
+    if (!doc) {
+      return next(
+        new AppError(
+          `No ${Model.modelName} found with the provided criteria`,
+          404,
+        ),
+      );
+    }
+
+    // 4. Return as Middleware or Controller
+    if (asMiddleware) {
+      res.locals[localKey] = doc;
+      return next();
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: { data: doc },
     });
   });
