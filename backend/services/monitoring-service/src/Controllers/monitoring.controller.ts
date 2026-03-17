@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { MonitorResult } from "../Models/monitor-results.model";
-import { catchAsync } from "@monitorapp/shared";
+import { catchAsync, factory } from "@monitorapp/shared";
+import { MonitorDailyStat } from "../Models/monitor-daily-stats.model";
 
 export const getLastResult = catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -16,3 +17,6 @@ export const getLastResult = catchAsync(
     });
   },
 );
+
+export const getAllMonitorResults = factory.getAll(MonitorResult);
+export const getAllDailyMonitorResults = factory.getAll(MonitorDailyStat);

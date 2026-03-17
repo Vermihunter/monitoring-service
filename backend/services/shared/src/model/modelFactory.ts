@@ -154,9 +154,12 @@ export const getAll = <T>(Model: Model<T>) =>
   catchAsync(async (req: Request, res: Response) => {
     let filter: Record<string, unknown> = {};
 
-    if (req.params.tourId) {
-      filter = { tour: req.params.tourId };
-    }
+    Object.entries(req.params).forEach(([key, value]) => {
+      if (key.endsWith("Id")) {
+        const fieldName = key.replace(/Id$/, "");
+        filter[fieldName] = value;
+      }
+    });
 
     const features = new APIFeatures(
       Model.find(filter),

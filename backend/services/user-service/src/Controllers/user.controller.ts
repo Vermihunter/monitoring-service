@@ -8,12 +8,17 @@ import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import { IUser, User } from "../Models/user.model";
 import { HydratedDocument } from "mongoose";
-import { AppError, catchAsync, factory } from "@monitorapp/shared";
+import {
+  AppError,
+  catchAsync,
+  factory,
+  AuthenticatedRequest,
+} from "@monitorapp/shared";
 //import sharp from "sharp";
 
-interface AuthenticatedRequest extends Request {
-  user: HydratedDocument<IUser>;
-}
+// interface AuthenticatedRequest extends Request {
+//   user: HydratedDocument<IUser>;
+// }
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -92,7 +97,7 @@ export const getMe = (
   res: Response,
   next: NextFunction,
 ) => {
-  req.params.id = req.user.id;
+  req.params.id = req.user!.id;
   next();
 };
 

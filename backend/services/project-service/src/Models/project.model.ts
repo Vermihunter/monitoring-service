@@ -5,6 +5,7 @@ export interface IProject {
   description: string;
   tags: [string];
   user: Types.ObjectId;
+  monitors: Types.ObjectId[];
 }
 
 export type UserDocument = HydratedDocument<IProject>;
@@ -29,8 +30,15 @@ const projectSchema = new Schema<IProject>({
   user: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: [true, "Every project must belong to a user"],
   },
+
+  monitors: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Monitor",
+    },
+  ],
 });
 
 export const Project = model<IProject>("Project", projectSchema);

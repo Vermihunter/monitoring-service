@@ -1,5 +1,11 @@
 import jwt, { SignOptions } from "jsonwebtoken";
-import { AppError, catchAsync, HttpClient } from "@monitorapp/shared";
+import {
+  AppError,
+  catchAsync,
+  HttpClient,
+  factory,
+  AuthenticatedRequest,
+} from "@monitorapp/shared";
 //import Email from "./../utils/email";
 import { UserAuth, UserAuthDocument } from "../Models/auth.model";
 import { NextFunction, Request, Response } from "express";
@@ -10,8 +16,8 @@ const userHttpClient = new HttpClient({
 
 const { JWT_SECRET, JWT_EXPIRES_IN, JWT_COOKIE_EXPIRES_IN } = process.env;
 
-const signToken = (id: string) => {
-  return jwt.sign({ id }, JWT_SECRET!, {
+const signToken = (user: UserAuthDocument) => {
+  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET!, {
     expiresIn: JWT_EXPIRES_IN as SignOptions["expiresIn"],
   });
 };
@@ -22,7 +28,7 @@ const createSendToken = (
   req: Request,
   res: Response,
 ) => {
-  const token = signToken(String(user._id));
+  const token = signToken(user);
   const cookieExpiresIn = Number(JWT_COOKIE_EXPIRES_IN) || 30;
 
   res.cookie("jwt", token, {
@@ -230,3 +236,19 @@ export const logout = (req: Request, res: Response) => {
 //     createSendToken(user, 200, req, res);
 //   },
 // );
+
+function isAuth(req: Request): req is AuthenticatedRequest {
+  return (req as AuthenticatedRequest).user !== undefined;
+}
+
+export const getMe = (req: Request, res: Response, next: NextFunction) => {
+  if (!isAuth(req)) {
+    return next(new AppError("Authentication required", 401));
+  }
+
+  req.params.id = req.user.id;
+
+  next();
+};
+
+export const getUser = factory.getOne(UserAuth);

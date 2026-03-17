@@ -24,7 +24,7 @@ export const handlePingMonitor: MonitorHandlerFn = async (data) => {
       resolve();
     });
 
-    socket.on("error", (err) => {
+    socket.on("error", (err: Error) => {
       socket.destroy();
       reject(new Error(`Connection failed: ${err.message}`));
     });

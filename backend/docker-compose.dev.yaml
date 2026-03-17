@@ -53,6 +53,9 @@ services:
       dockerfile: services/docker/Dockerfile.dev #services/badge-service/Dockerfile.dev
       args:
         SERVICE_NAME: badge-service
+
+    env_file:
+      - ./.env
     volumes:
       - ./services/badge-service:/app
       - /app/node_modules
@@ -123,6 +126,18 @@ services:
       - mongodb
       - redis
 
+  graphql-service:
+    build:
+      context: .
+      dockerfile: services/docker/Dockerfile.dev
+      args:
+        SERVICE_NAME: graphql-service
+    env_file:
+      - ./.env
+    volumes:
+      - ./services/graphql-service:/app
+      - /app/node_modules
+
   gateway:
     build: ./gateway
     ports:
@@ -133,6 +148,7 @@ services:
       - monitor-service
       - badge-service
       - project-service
+      - graphql-service
 
 volumes:
   mongo_data:

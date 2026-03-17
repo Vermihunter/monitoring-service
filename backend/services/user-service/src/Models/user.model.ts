@@ -3,13 +3,14 @@ import mongoose, {
   model,
   HydratedDocument,
   Query,
-  CallbackWithoutResultAndOptionalError,
+  Types,
 } from "mongoose";
 
 export interface IUser {
   name: string;
   photo: string;
   active: boolean;
+  projects: Types.ObjectId[];
 }
 
 export type UserDocument = HydratedDocument<IUser>;
@@ -24,11 +25,19 @@ const userSchema = new Schema<IUser>({
     type: String,
     default: "default.jpg",
   },
+
   active: {
     type: Boolean,
     default: true,
     select: false,
   },
+
+  projects: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
+    },
+  ],
 });
 
 userSchema.pre(/^find/, function (this: Query<any, UserDocument>) {

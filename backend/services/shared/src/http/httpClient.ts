@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
 export interface HttpClientOptions {
   baseURL: string;
   timeout?: number;
+  jwt?: string;
 }
 
 export class HttpClient {
@@ -14,7 +15,21 @@ export class HttpClient {
       timeout: options.timeout ?? 5000,
       headers: {
         "Content-Type": "application/json",
+        ...(options.jwt && {
+          Authorization: `Bearer ${options.jwt}`,
+        }),
       },
+    });
+
+    this.instance.interceptors.request.use((config) => {
+      if (options.jwt) {
+        config.headers = config.headers ?? {};
+        config.headers.Authorization = `Bearer ${options.jwt}`;
+      }
+
+      console.log("Outgoing Authorization:", config.headers?.Authorization);
+
+      return config;
     });
   }
 
@@ -65,7 +80,6 @@ export class HttpClient {
       const response = await this.instance.request<T>(config);
       return response.data;
     } catch (error) {
-      
       this.handleError(error);
     }
   }

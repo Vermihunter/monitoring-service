@@ -52,34 +52,35 @@ const protect = catchAsync(
 
     // 3) Check if user still exists
     //const currentUser = await User.findById(decoded.id);
-    const userResponse = await userHttpClient.get<any>(
-      `/${decoded.id}/user-exists`,
-    );
-    console.log(`User response: ${JSON.stringify(userResponse)}`);
-    if (!userResponse || userResponse["status"] === "fail") {
-      return next(
-        new AppError(
-          "The user belonging to this token does no longer exist.",
-          401,
-        ),
-      );
-    }
-
-    // const currentAuthDetails = await authHttpClient.get<any>(`/${decoded.id}`);
-    // // 4) Check if user changed password after the token was issued
-    // if (
-    //   !currentAuthDetails ||
-    //   currentAuthDetails.changedPasswordAfter(decoded.iat)
-    // ) {
+    // const userResponse = await userHttpClient.get<any>(
+    //   `/${decoded.id}/user-exists`,
+    // );
+    // console.log(`User response: ${JSON.stringify(userResponse)}`);
+    // if (!userResponse || userResponse["status"] === "fail") {
     //   return next(
     //     new AppError(
-    //       "User recently changed password! Please log in again.",
+    //       "The user belonging to this token does no longer exist.",
     //       401,
     //     ),
     //   );
     // }
 
-    const user = userResponse["user"];
+    // const userAuthResponse = await authHttpClient.get<any>("/me");
+    // const user = userResponse["user"];
+
+    // console.log("Full userResponse:", JSON.stringify(userResponse, null, 2));
+    // console.log("Extracted user:", user);
+
+    // console.log(
+    //   "Full authResponse:",
+    //   JSON.stringify(userAuthResponse, null, 2),
+    // );
+    //console.log("Extracted auth:", user);
+
+    const user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
 
     // GRANT ACCESS TO PROTECTED ROUTE
     (req as AuthenticatedRequest).user = user;

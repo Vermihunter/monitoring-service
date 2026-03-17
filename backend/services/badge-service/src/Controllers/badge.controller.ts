@@ -2,22 +2,22 @@ import { Request, Response, NextFunction } from "express";
 import { BadgeService } from "../Services/badge.service";
 import { HttpClient, catchAsync } from "@monitorapp/shared";
 
-const httpClient = new HttpClient({
-  baseURL: "http://monitor-service:3000", //process.env.MONITOR_SERVICE_URL!,
-  timeout: 3000,
-});
-
-export async function fetchMonitor(monitorId: string): Promise<any> {
-  return httpClient.get<any>(`/${monitorId}`);
-}
-
 export const getMonitor = catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { monitorId } = req.params;
     console.log(`Processing monitor id ${monitorId}`);
 
-    const monitor = await fetchMonitor(String(monitorId));
+    const jwt = req?.cookies.jwt;
+    console.log("HEADERS:", jwt);
 
+    const httpClient = new HttpClient({
+      baseURL: "http://monitor-service:3000",
+      ...(jwt && {
+        jwt,
+      }),
+    });
+
+    const monitor = await httpClient.get<any>(`/${monitorId}`);
     res.locals.badgeLabel = monitor["data"]["data"]["badge_label"];
     res.locals.lastStatus = "up";
 

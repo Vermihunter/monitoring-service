@@ -10,36 +10,45 @@ export interface IMonitorResult {
   start: Date;
   status: MonitorResultStatus;
   monitor: Types.ObjectId;
-  responseInMs: Number;
-  errorMessage: String;
+  responseInMs?: number | null;
+  errorMessage?: string | null;
 }
 
 export type MonitorDocument = HydratedDocument<IMonitorResult>;
 
-const monitorResultSchema = new Schema<IMonitorResult>({
-  start: {
-    type: Date,
-    required: true,
-    default: Date.now,
+const monitorResultSchema = new Schema<IMonitorResult>(
+  {
+    start: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+
+    status: {
+      type: String,
+      enum: Object.values(MonitorResultStatus),
+      required: true,
+    },
+
+    monitor: {
+      type: Schema.Types.ObjectId,
+      ref: "Monitor",
+      required: true,
+    },
+
+    responseInMs: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+
+    errorMessage: {
+      type: String,
+      default: null,
+    },
   },
-  status: {
-    type: String,
-    enum: Object.values(MonitorResultStatus),
-    required: true,
-  },
-  monitor: {
-    type: Schema.Types.ObjectId,
-    ref: "Monitor",
-    required: true,
-  },
-  responseInMs: {
-    type: Number,
-    required: false,
-  },
-  errorMessage: {
-    type: String,
-  },
-});
+  { timestamps: true },
+);
 
 export const MonitorResult = model<IMonitorResult>(
   "MonitorResult",
