@@ -6,7 +6,7 @@ function queueIdForMonitor(monitor: MonitorDocument) {
   return `monitor-${monitor.id}`;
 }
 
-export async function startMonitorService(monitor: any) {
+export async function startMonitorService(monitor: any, ignoreActive = false) {
   const monitorObj = monitor.toObject();
 
   const {
@@ -20,7 +20,7 @@ export async function startMonitorService(monitor: any) {
     ...queueData
   } = monitorObj as any;
 
-  if (active) {
+  if (!ignoreActive && active) {
     return { message: "Monitor was already active" };
   }
 

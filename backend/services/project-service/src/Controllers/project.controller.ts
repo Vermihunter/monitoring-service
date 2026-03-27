@@ -12,6 +12,8 @@ export const addMonitor = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { monitorId } = req.body;
 
+    console.log("Adding monitor to project");
+
     const project = await Project.findByIdAndUpdate(
       req.params.id,
       {

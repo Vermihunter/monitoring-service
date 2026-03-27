@@ -12,7 +12,7 @@ export const getLastResult = catchAsync(
       .lean(); // Faster, returns plain JS object
 
     res.status(200).json({
-      status: "success",
+      status: result?.status,
       data: result,
     });
   },

@@ -11,7 +11,7 @@ export default async function Page({
   console.log(project);
 
   return (
-    <div className="flex justify-center bg-gray-50 py-10 px-6">
+    <div className="flex justify-center bg-gray-50 py-10 px-4">
       <div className="w-full max-w-2xl">
         <ProjectForm project={project} />
       </div>

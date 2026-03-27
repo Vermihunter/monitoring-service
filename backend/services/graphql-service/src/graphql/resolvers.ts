@@ -40,5 +40,11 @@ export const resolvers = {
 
       return ctx.loaders.statusByMonitorId.load(id);
     },
+
+    badge: async (parent: any, _: any, ctx: GraphQLContext) => {
+      const id = parent.id ?? parent._id;
+      if (!id) return null;
+      return ctx.loaders.badgeByMonitorId.load(String(id));
+    },
   },
 };

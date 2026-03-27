@@ -2,7 +2,7 @@ import { SignInData } from "@/app/_types/SignInData";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  console.log("Auth Signup POST request Proxy: ", JSON.stringify(body));
+  // console.log("Auth Signup POST request Proxy: ", JSON.stringify(body));
 
   const data: SignInData = body;
 

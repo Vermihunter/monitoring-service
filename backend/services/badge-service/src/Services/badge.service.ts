@@ -2,7 +2,7 @@ import { makeBadge } from "badge-maker";
 
 export class BadgeService {
   static generateBadge(monitor: any): string {
-    const isUp = monitor.lastStatus === "up";
+    const isUp = monitor.lastStatus === "success";
 
     return makeBadge({
       label: monitor.badgeLabel,

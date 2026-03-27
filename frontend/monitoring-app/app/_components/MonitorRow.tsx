@@ -5,6 +5,7 @@ import Monitor from "@/app/_types/monitor";
 import ToggleBadge from "./ToggleBadge";
 import Link from "next/link";
 import Project from "../_types/project";
+import Image from "next/image";
 
 export default function MonitorRow({
   monitor,
@@ -35,10 +36,15 @@ export default function MonitorRow({
         <Link href={`/monitor/${monitor._id}`}>{monitor.label}</Link>
       </td>
 
-      <td className="px-6 py-4">
-        <span className="rounded-md bg-blue-200 px-2 py-1 text-xs font-semibold text-blue-900">
-          {monitor.badge_label}
-        </span>
+      <td className="px-10 py-4">
+        {/* <span className="rounded-md bg-blue-200 px-2 py-1 text-xs font-semibold text-blue-900"> */}
+
+        <img
+          src={`data:image/svg+xml;utf8,${encodeURIComponent(monitor.badge!)}`}
+          alt={`${monitor.label} badge`}
+          className="h-5 w-auto"
+        />
+        {/* </span> */}
       </td>
 
       <td className="px-6 py-4">{monitor.periodicity}s</td>

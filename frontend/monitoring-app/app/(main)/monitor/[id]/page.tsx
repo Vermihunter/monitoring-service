@@ -11,7 +11,7 @@ export default async function Page({
   const monitor: Monitor = (await getMonitorByID(id)).data.data;
 
   return (
-    <div className="flex w-full justify-center pt-16">
+    <div className="flex w-full justify-center pt-4">
       <div className="w-full max-w-4xl">
         <MonitorForm monitor={monitor} />
       </div>

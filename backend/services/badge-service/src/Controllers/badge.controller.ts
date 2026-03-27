@@ -5,23 +5,34 @@ import { HttpClient, catchAsync } from "@monitorapp/shared";
 export const getMonitor = catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { monitorId } = req.params;
-    console.log(`Processing monitor id ${monitorId}`);
+    const authHeader = req.headers.authorization;
 
-    const jwt = req?.cookies.jwt;
-    console.log("HEADERS:", jwt);
+    const jwt = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : (req.cookies?.jwt ?? null);
 
-    const httpClient = new HttpClient({
+    const monitorHttpClient = new HttpClient({
       baseURL: "http://monitor-service:3000",
       ...(jwt && {
         jwt,
       }),
     });
 
-    const monitor = await httpClient.get<any>(`/${monitorId}`);
-    res.locals.badgeLabel = monitor["data"]["data"]["badge_label"];
-    res.locals.lastStatus = "up";
+    const statusHttpClient = new HttpClient({
+      baseURL: "http://monitoring-service:3000",
+      ...(jwt && {
+        jwt,
+      }),
+    });
 
-    console.log(req.query);
+    let [monitor, status] = await Promise.all([
+      monitorHttpClient.get<any>(`/${monitorId}`),
+      statusHttpClient.get<any>(`/${monitorId}/latest-result`),
+    ]);
+
+    res.locals.badgeLabel = monitor.data.data.badge_label;
+    res.locals.lastStatus = status.status;
+
     next();
   },
 );

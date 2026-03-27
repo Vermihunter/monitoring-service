@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import Project from "@/app/_types/project";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function ProjectForm({ project }: { project: Project }) {
   const [form, setForm] = useState(project);
   const [newTag, setNewTag] = useState("");
+  const router = useRouter();
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -41,13 +44,24 @@ export default function ProjectForm({ project }: { project: Project }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    await fetch(`/api/projects/${project._id}`, {
+    const response = await fetch(`/api/projects/${project._id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(form),
     });
+
+    if (!response.ok) {
+      toast.error(response.statusText);
+      return;
+    }
+
+    toast.success("Project successfully updated!");
+
+    setTimeout(() => {
+      router.push("/project");
+    }, 1500);
   }
 
   return (

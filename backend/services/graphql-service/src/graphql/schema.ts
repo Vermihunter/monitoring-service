@@ -23,6 +23,7 @@ const typeDefs = `#graphql
         host: String
         url: String
         badge_label: String!
+        badge: String
         statuses: [Status!]!
         active: Boolean!
     }

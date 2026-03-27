@@ -70,7 +70,7 @@ export const handleSignUp = async (data: SignUpData) => {
 };
 
 export const handleSignIn = async (data: SignInData) => {
-  console.log("Submitted data:", data);
+  //console.log("Submitted data:", data);
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/auth/signin`, {
@@ -99,5 +99,5 @@ export const handleSignIn = async (data: SignInData) => {
 };
 
 export const handleMonitorUpdate = async (id: string, data: Monitor) => {
-  await updateMonitor(id, data);
+  return await updateMonitor(id, data);
 };

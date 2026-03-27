@@ -24,12 +24,12 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  console.log("Sending modified monitor");
   const { id } = await params;
   const body = await request.json();
   const c = await cookies();
   const jwt = c.get("jwt")?.value;
 
-  console.log("Sending modified monitor");
   console.log(body);
 
   const res = await fetch(`${process.env.BACKEND_URL}/api/v1/monitors/${id}`, {
@@ -41,7 +41,9 @@ export async function PATCH(
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
+  const data = await res.text();
+  console.log("Response");
+  console.log(data);
 
   return Response.json(data, { status: res.status });
 }

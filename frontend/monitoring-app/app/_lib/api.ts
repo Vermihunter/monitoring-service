@@ -53,13 +53,18 @@ export async function getMonitorByID(id: string) {
 
 export async function updateMonitor(id: string, data: Monitor) {
   console.log("Sending update");
+  const c = await cookies();
+  const jwt = c.get("jwt")?.value;
 
-  await fetch(`/api/monitors/${id}`, {
+  const res = await fetch(`${NEXT_URL}/api/monitors/${id}`, {
     method: "PATCH",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      Cookie: `jwt=${jwt}`,
     },
     body: JSON.stringify(data),
   });
+
+  return res.json();
 }

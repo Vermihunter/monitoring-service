@@ -17,6 +17,7 @@ const query = gql`
         periodicity
         label
         badge_label
+        badge
         type
         active
       }
@@ -26,7 +27,7 @@ const query = gql`
 
 type GraphQLMonitor = Pick<
   Monitor,
-  "label" | "periodicity" | "type" | "badge_label" | "active"
+  "label" | "periodicity" | "type" | "badge_label" | "active" | "badge"
 > & {
   identifier: string;
 };
@@ -45,6 +46,10 @@ type MonitorProjectCombo = {
   monitor: Monitor;
 };
 
+async function getBadgeForMonitor(id: string) {
+  return "";
+}
+
 async function getTransformedData() {
   const c = await cookies();
   const jwt = c.get("jwt")?.value;
@@ -60,32 +65,43 @@ async function getTransformedData() {
     },
   });
 
-  const combos: MonitorProjectCombo[] | undefined = data?.projects.flatMap(
-    (project) =>
-      project.monitors.map((monitor) => ({
-        project: {
-          _id: project.identifier,
-          label: project.label,
-          description: project.description,
-          tags: [],
-        } as Project,
-        monitor: {
-          _id: monitor.identifier,
-          label: monitor.label,
-          periodicity: monitor.periodicity,
-          type: monitor.type,
-          badge_label: monitor.badge_label,
-          project: project.label,
-          active: monitor.active,
-        } as Monitor,
-      })),
+  if (!data || !data.projects) {
+    return [];
+  }
+
+  const combos = await Promise.all(
+    data.projects.flatMap((project) =>
+      project.monitors.map(
+        async (monitor) =>
+          ({
+            project: {
+              _id: project.identifier,
+              label: project.label,
+              description: project.description,
+              tags: [],
+            } as Project,
+            monitor: {
+              _id: monitor.identifier,
+              label: monitor.label,
+              periodicity: monitor.periodicity,
+              type: monitor.type,
+              badge_label: monitor.badge_label,
+              project: project.label,
+              active: monitor.active,
+              badge: monitor.badge,
+            } as Monitor,
+          }) as MonitorProjectCombo,
+      ),
+    ),
   );
 
-  return combos;
+  return await combos;
 }
 
 export default async function Page() {
   const data = await getTransformedData();
+
+  console.log(data);
 
   return (
     <div className="flex flex-col h-full">

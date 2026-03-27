@@ -6,4 +6,5 @@ export default interface Monitor {
   project: string;
   active: boolean;
   type: string;
+  badge?: string;
 }
