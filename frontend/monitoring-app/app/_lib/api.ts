@@ -30,6 +30,7 @@ export async function getProjectByID(id: string) {
       Cookie: `jwt=${jwt}`,
     },
   });
+
   return res.json();
 }
 

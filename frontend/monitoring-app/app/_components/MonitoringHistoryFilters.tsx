@@ -131,7 +131,7 @@ export default function MonitoringHistoryFilters({
               >
                 <option value="">All statuses</option>
                 <option value="success">Success</option>
-                <option value="fail">Fail</option>
+                <option value="failed">Failed</option>
               </select>
             </FilterSection>
 

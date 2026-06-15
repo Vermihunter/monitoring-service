@@ -19,10 +19,17 @@ router
   .route("/:id")
   .get(
     projectController.findProject({
-      filter: (req: any) => ({
-        user: req.user.id,
-        _id: req.params.id,
-      }),
+      filter: (req: any) => {
+        console.log("req.user:", req.user);
+        console.log("req.user.id:", req.user?.id);
+        console.log("req.user._id:", req.user?._id);
+        console.log("req.params.id:", req.params.id);
+
+        return {
+          user: req.user.id,
+          _id: req.params.id,
+        };
+      },
     }),
   )
   .post(projectController.updateProject)

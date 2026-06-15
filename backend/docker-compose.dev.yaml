@@ -27,18 +27,6 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
-  # bullmq:
-  #   build: .
-  #   container_name: bullmq-app
-  #   depends_on:
-  #     - redis
-  #   env_file:
-  #     - ./.env
-  #     - ./broker/.env
-  #   volumes:
-  #     - .:/app
-  #   command: npm run dev
-
   shared:
     image: monitorapp-shared
     build:
